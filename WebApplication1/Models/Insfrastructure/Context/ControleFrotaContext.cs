@@ -19,6 +19,13 @@ namespace WebApplication1.Models.Insfrastructure.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            ConfigureEntities(modelBuilder);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
+        protected void ConfigureEntities(ModelBuilder modelBuilder)
+        {
             // configuração de chave composta
             modelBuilder.Entity<MotoristaVeiculo>()
                 .ToTable("tbl_m_v")
@@ -34,7 +41,22 @@ namespace WebApplication1.Models.Insfrastructure.Context
                 .HasColumnName("motor_id")
                 .HasColumnType("varchar(50)");
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Motorista>()
+                .ToTable("tbl_motor");
+
+            modelBuilder.Entity<Motorista>()
+                .HasKey(m => m.MotoristaId);
+
+            modelBuilder.Entity<Motorista>()
+                .Property(m => m.MotoristaId)
+                .HasColumnName("motor_id")
+                .HasColumnType("varchar(50)");
+
+            modelBuilder.Entity<Motorista>()
+                .Property(m => m.Nome)
+                .HasColumnName("nome")
+                .HasColumnType("varchar(150)")
+                .IsRequired();
         }
     }
 }

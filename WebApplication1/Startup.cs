@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplication1.Models.Application.Services;
 using WebApplication1.Models.Insfrastructure.Context;
 using WebApplication1.Models.Insfrastructure.Repository;
 
@@ -30,10 +31,15 @@ namespace WebApplication1
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+
             services.AddDbContext<ControleFrotaContext>(options => 
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddScoped<IVeiculoRepositorio, VeiculoRepositorio>();
+            services.AddScoped<IVeiculoService, VeiculoService>();
 
             services.AddSwaggerGen(c =>
             {

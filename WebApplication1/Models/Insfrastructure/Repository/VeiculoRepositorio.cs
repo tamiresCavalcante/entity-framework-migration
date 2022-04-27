@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,34 +16,58 @@ namespace WebApplication1.Models.Insfrastructure.Repository
             this._contextFrota = context;
         }
 
-        public Task Atualizar(Veiculo veiculo)
+        public async Task Atualizar(Veiculo veiculo)
         {
-            throw new NotImplementedException();
+            var atualizado = await Pesquisar(veiculo.VeiculoId);
+            if(veiculo != null && !string.IsNullOrEmpty(veiculo.VeiculoId) && veiculo.VeiculoId.Equals(veiculo.VeiculoId))
+            {
+                atualizado.Modelo = veiculo.Modelo;
+                atualizado.Ano = veiculo.Ano;
+                atualizado.Placa = veiculo.Placa;
+
+                _contextFrota.Veiculos.Update(atualizado);
+            }
         }
 
-        public Task Cadastrar(Veiculo veiculo)
+        public async Task Cadastrar(Veiculo veiculo)
         {
-            throw new NotImplementedException();
+            await _contextFrota.Veiculos.AddAsync(veiculo);
+            await _contextFrota.SaveChangesAsync();
         }
 
-        public Task Excluir(string veiculoId)
+        public async Task Excluir(string veiculoId)
         {
-            throw new NotImplementedException();
+            var veiculo = await Pesquisar(veiculoId);
+            if (veiculo != null && !string.IsNullOrEmpty(veiculo.VeiculoId) && veiculo.VeiculoId.Equals(veiculoId))
+                _contextFrota.Veiculos.Remove(veiculo);
         }
 
-        public Task<List<Veiculo>> Listar()
+        public async Task<List<Veiculo>> Listar()
         {
-            throw new NotImplementedException();
+            return await _contextFrota.Veiculos.ToListAsync();
         }
 
-        public Task<List<Veiculo>> ListarDeOutraManeira()
+        public async Task<List<Veiculo>> ListarDeOutraManeira()
         {
-            throw new NotImplementedException();
+            var result = await _contextFrota.Veiculos
+                .Include(c => c.Motoristas)
+                .ThenInclude(y => y.Veiculo)
+                .ToListAsync();
+
+            foreach(var item in result)
+            {
+                foreach(var subitem in item.Motoristas)
+                {
+                    subitem.Motorista = _contextFrota.Motoristas.FirstOrDefault(m => m.MotoristaId.Equals(subitem.MotoristaId));
+                }
+            }
+
+            return result;
         }
 
-        public Task<Veiculo> Pesquisar(string veiculoId)
+        public async Task<Veiculo> Pesquisar(string veiculoId)
         {
-            throw new NotImplementedException();
+            return await _contextFrota.Veiculos.FirstOrDefaultAsync(v => v.VeiculoId.Equals(veiculoId));
         }
     }
 }
